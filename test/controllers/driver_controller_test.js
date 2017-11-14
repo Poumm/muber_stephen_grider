@@ -52,4 +52,26 @@ describe("Driver controller", () => {
         });
     });
   });
+
+  it("GET to /api/drivers : get a list of driver by position", done => {
+    const seattleDriver = new Driver({
+      email: "seattle@t.com",
+      geometry: { type: "Point", coordinates: [-122.4759902, 47.62147628] }
+    });
+    const miamiDriver = new Driver({
+      email: "miami@t.com",
+      geometry: { type: "Point", coordinates: [-80.253, 25.791] }
+    });
+
+    Promise.all([seattleDriver.save(), miamiDriver.save()]).then(() => {
+      request(app)
+        .get("/api/drivers?lng=-80&lat=25")
+        .end((err, response) => {
+          assert(response.status === 200);
+          assert(response.body.length === 1);
+          assert(response.body[0].obj.email === miamiDriver.email);
+          done();
+        });
+    });
+  });
 });
